@@ -16,6 +16,7 @@ class Tweet: NSObject {
     var favoritesCount: Int = 0
     var profileImageURL: NSURL?
     var userName: String?
+    var profileBackgroundUrl: NSURL?
     
     init(dictionary: NSDictionary) {
         text = dictionary["text"] as? String
@@ -36,6 +37,11 @@ class Tweet: NSObject {
             profileImageURL = NSURL(string: tweeterProfileImageURLString)
         }
         userName = dictionary["user"]!["screen_name"] as? String
+        let profileBackgroundUrlString = dictionary["profile_background_image_url_https"] as? String
+        if let profileBackgroundUrlString = profileBackgroundUrlString {
+            profileBackgroundUrl = NSURL(string: profileBackgroundUrlString)
+        }
+
 
     }
     

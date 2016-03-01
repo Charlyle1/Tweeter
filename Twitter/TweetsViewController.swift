@@ -10,14 +10,21 @@ import UIKit
 
 class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
+    @IBOutlet weak var navigationBar: UINavigationItem!
     @IBOutlet weak var tableView: UITableView!
 
-    
     var tweets: [Tweet]!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.delegate = self
         tableView.dataSource = self
+        
+        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.estimatedRowHeight = 100
+
+        
+        self.automaticallyAdjustsScrollViewInsets = false
         
         TwitterClient.sharedInstance.homeTimeline({ (tweets: [Tweet]) -> () in
             self.tweets = tweets
@@ -59,6 +66,25 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         cell.tweet = tweets[indexPath.row]
         return cell
 
+    }
+
+    
+    
+    func tableView(tableView: UITableView, heightForRowAtIndexPath indexPath: NSIndexPath) -> CGFloat {
+        return UITableViewAutomaticDimension;
+    }
+
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        
+        let cell = sender as! UITableViewCell
+        let indexPath = tableView.indexPathForCell(cell)
+        let tweet = tweets![indexPath!.row]
+        let detailViewController = segue.destinationViewController as! DetailsViewController
+        detailViewController.tweet = tweet
+        
+        
+        // Get the new view controller using segue.destinationViewController.
+        // Pass the selected object to the new view controller.
     }
 
     /*

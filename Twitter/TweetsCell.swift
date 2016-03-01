@@ -13,7 +13,10 @@ import UIKit
 
 class TweetsCell: UITableViewCell {
 
-    
+
+    @IBOutlet weak var likeButton: UIButton!
+    @IBOutlet weak var retweetButton: UIButton!
+    @IBOutlet weak var replyButton: UIButton!
     @IBOutlet weak var profileImageView: UIImageView!
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var usernameLabel: UILabel!
@@ -21,29 +24,8 @@ class TweetsCell: UITableViewCell {
 
     var tweet: Tweet! {
         didSet {
-            /**if let profileImageURL = tweet.profileImageURL {
-                let imageRequest = NSURLRequest(URL: profileImageURL)
-                profileImageView.setImageWithURLRequest(
-                    imageRequest,
-                    placeholderImage: nil,
-                    success: { (imageRequest, imageResponse, image) -> Void in
-                        
-                        // imageResponse will be nil if the image is cached
-                        if imageResponse != nil {
-                            print("Image was NOT cached, fade in image")
-                            self.profileImageView.alpha = 0.0
-                            self.profileImageView.image = image
-                            UIView.animateWithDuration(0.3, animations: { () -> Void in
-                                self.profileImageView.alpha = 1.0
-                            })
-                        } else {
-                            self.profileImageView.image = image
-                        }
-                    },
-                    failure: { (imageRequest, imageResponse, error) -> Void in
-                        self.profileImageView.image = nil
-                })**/
-            if let thumbURL = tweet.profileImageURL {
+                
+                if let thumbURL = tweet.profileImageURL {
                 profileImageView.setImageWithURL(thumbURL)
             }
             
@@ -56,13 +38,20 @@ class TweetsCell: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
+        nameLabel.preferredMaxLayoutWidth = nameLabel.frame.size.width
     }
 
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        //nameLabel.preferredMaxLayoutWidth = nameLabel.frame.size.width
-        
+        nameLabel.preferredMaxLayoutWidth = nameLabel.frame.size.width
+        tweetTextLabel.sizeToFit()
+        usernameLabel.sizeToFit()
+        tweetTextLabel.numberOfLines = 0
+        nameLabel.sizeToFit()
+        tweetTextLabel.preferredMaxLayoutWidth = 244
+        profileImageView.layer.cornerRadius = 3
+        profileImageView.clipsToBounds = true
     }
     
     
@@ -70,6 +59,27 @@ class TweetsCell: UITableViewCell {
         super.setSelected(selected, animated: animated)
         
         // Configure the view for the selected state
-    }
 
+    }
+    
+
+    @IBAction func onClickReply(sender: AnyObject) {
+        if let image = UIImage(named: "reply-action-pressed_0.png") {
+            replyButton.setImage(image, forState: .Normal)
+        }
+    }
+    
+    @IBAction func onClickRetweet(sender: AnyObject) {
+        if let image = UIImage(named: "retweet-action-pressed.png") {
+            retweetButton.setImage(image, forState: .Normal)
+        }
+    }
+    
+    @IBAction func onClickLike(sender: AnyObject) {
+        if let image = UIImage(named: "like-action-pressed.png") {
+            likeButton.setImage(image, forState: .Normal)
+        }
+    }
+    
+    
 }
