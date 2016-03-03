@@ -55,6 +55,71 @@ class TwitterClient: BDBOAuth1SessionManager {
         }
     }
     
+    func update(status: String, replyTo: String, success: (Bool) -> (), failure: (NSError) -> ()) {
+        POST("1.1/statuses/update.json?status=\(status.stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLQueryAllowedCharacterSet())!)", parameters: nil, success: { (task: NSURLSessionDataTask, response: AnyObject?) -> Void in
+            success(true)
+            }) { (task: NSURLSessionDataTask?, error: NSError) -> Void in
+
+        }
+    }
+    
+    func retweet(tweet: Tweet, success: (Bool) -> (), failure: (NSError) -> ()) {
+        if tweet.retweeted {
+            POST("1.1/statuses/unretweet/\(tweet.id!).json", parameters: nil, success: { (task: NSURLSessionDataTask, response: AnyObject?) -> Void in
+            
+                tweet.retweeted = false
+                tweet.retweetCount--
+                
+                }, failure: { (task: NSURLSessionDataTask?, error: NSError) -> Void in
+                    failure(error)
+            })
+        } else {
+            POST("1.1/statuses/retweet/\(tweet.id!).json", parameters: nil, success: { (task: NSURLSessionDataTask, response: AnyObject?) -> Void in
+                tweet.retweeted = true
+                tweet.retweetCount++
+                
+                }, failure: { (task: NSURLSessionDataTask?, error: NSError) -> Void in
+                    failure(error)
+            })
+        }
+        success(tweet.retweeted)
+    }
+    
+    func favorite(tweet: Tweet, success: (Bool) -> (), failure: (NSError) -> ()) {
+        if tweet.favorited {
+            POST("1.1/favorites/destroy.json?id=\(tweet.id!)", parameters: nil, success: { (task: NSURLSessionDataTask, response: AnyObject?) -> Void in
+                
+                tweet.favoritesCount--
+                tweet.favorited = false
+                print("unliked!")
+                }, failure: { (task: NSURLSessionDataTask?, error: NSError) -> Void in
+                    failure(error)
+            })
+        } else {
+            POST("1.1/favorites/create.json?id=\(tweet.id!)", parameters: nil, success: { (task: NSURLSessionDataTask, response: AnyObject?) -> Void in
+                
+                tweet.favoritesCount++
+                tweet.favorited = true
+                print("liked!")
+                
+                }, failure: { (task: NSURLSessionDataTask?, error: NSError) -> Void in
+                    failure(error)
+            })
+        }
+        success(tweet.favorited)
+    }
+    
+    func userTimeline(success: ([Tweet]) -> (), failure: (NSError) -> ()) {
+        GET("1.1/statuses/user_timeline.json", parameters: nil, progress: nil, success: { (task: NSURLSessionDataTask, response: AnyObject?) -> Void in
+            let dictionaries = response as! [NSDictionary]
+            
+            let tweets = Tweet.tweetsWithArray(dictionaries)
+            success(tweets)
+            }, failure: { (task: NSURLSessionDataTask?, error: NSError) -> Void in
+                failure(error)
+        })
+    }
+    
     func homeTimeline(success: ([Tweet]) -> (), failure: (NSError) -> ()) {
         
        GET("1.1/statuses/home_timeline.json", parameters: nil, progress: nil, success: { (task: NSURLSessionDataTask, response: AnyObject?) -> Void in
@@ -62,6 +127,17 @@ class TwitterClient: BDBOAuth1SessionManager {
             
             let tweets = Tweet.tweetsWithArray(dictionaries)
             
+            success(tweets)
+            }, failure: { (task: NSURLSessionDataTask?, error: NSError) -> Void in
+                failure(error)
+        })
+    }
+    
+    func getTimeline(tweet: Tweet, success: ([Tweet]) -> (), failure: (NSError) -> ()) {
+
+        GET("1.1/statuses/user_timeline.json?screen_name=\(tweet.screenName)&count=2", parameters: nil, progress: nil, success: { (task: NSURLSessionDataTask, response: AnyObject?) -> Void in
+            let dictionaries = response as! [NSDictionary]
+            let tweets = Tweet.tweetsWithArray(dictionaries)
             success(tweets)
             }, failure: { (task: NSURLSessionDataTask?, error: NSError) -> Void in
                 failure(error)
@@ -82,4 +158,6 @@ class TwitterClient: BDBOAuth1SessionManager {
         })
 
     }
+    
+    
 }

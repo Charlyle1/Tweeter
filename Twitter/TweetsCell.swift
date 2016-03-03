@@ -8,9 +8,6 @@
 
 import UIKit
 
-
-
-
 class TweetsCell: UITableViewCell {
 
 
@@ -70,15 +67,37 @@ class TweetsCell: UITableViewCell {
     }
     
     @IBAction func onClickRetweet(sender: AnyObject) {
-        if let image = UIImage(named: "retweet-action-pressed.png") {
-            retweetButton.setImage(image, forState: .Normal)
+        TwitterClient.sharedInstance.retweet(tweet, success: { (retweeted: Bool) -> () in
+            
+            if retweeted {
+                self.retweetButton.setImage(UIImage(named: "retweet-action-pressed.png"), forState: .Normal)
+                self.retweetButton.setImage(UIImage(named: "retweet-action.png"), forState: .Highlighted)
+            }
+            else {
+                self.retweetButton.setImage(UIImage(named: "retweet-action.png"), forState: .Normal)
+                self.retweetButton.setImage(UIImage(named: "retweet-action-pressed.png"), forState: .Highlighted)
+            }
+            
+            }) { (error: NSError) -> () in
         }
+
     }
     
     @IBAction func onClickLike(sender: AnyObject) {
-        if let image = UIImage(named: "like-action-pressed.png") {
-            likeButton.setImage(image, forState: .Normal)
+        TwitterClient.sharedInstance.favorite(tweet, success: { (favorited: Bool) -> () in
+            if favorited {
+                self.likeButton.setImage(UIImage(named: "like-action-on.png"), forState: .Highlighted)
+                self.likeButton.setImage(UIImage(named: "like-action.png"), forState: .Normal)
+                
+            }
+            else {
+                self.likeButton.setImage(UIImage(named: "like-action.png"), forState: .Highlighted)
+                self.likeButton.setImage(UIImage(named: "like-action-on.png"), forState: .Normal)
+            }
+            
+            }) { (error: NSError) -> () in
         }
+
     }
     
     

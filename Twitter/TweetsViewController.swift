@@ -10,6 +10,7 @@ import UIKit
 
 class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
+    
     @IBOutlet weak var navigationBar: UINavigationItem!
     @IBOutlet weak var tableView: UITableView!
 
@@ -26,6 +27,8 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         
         self.automaticallyAdjustsScrollViewInsets = false
         
+        self.tableView.reloadData()
+        
         TwitterClient.sharedInstance.homeTimeline({ (tweets: [Tweet]) -> () in
             self.tweets = tweets
             for tweet in tweets {
@@ -40,6 +43,35 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
         // Do any additional setup after loading the view.
     }
 
+    override func viewDidAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        TwitterClient.sharedInstance.homeTimeline({ (tweets: [Tweet]) -> () in
+            self.tweets = tweets
+            for tweet in tweets {
+                print(tweet.text)
+            }
+            self.tableView.reloadData()
+            }, failure: { (error: NSError) -> () in
+                print(error.localizedDescription)
+        })
+        
+    }
+
+    
+    override func viewWillAppear(animated: Bool) {
+        super.viewWillAppear(animated)
+        TwitterClient.sharedInstance.homeTimeline({ (tweets: [Tweet]) -> () in
+            self.tweets = tweets
+            for tweet in tweets {
+                print(tweet.text)
+            }
+            self.tableView.reloadData()
+            }, failure: { (error: NSError) -> () in
+                print(error.localizedDescription)
+        })
+        
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
@@ -75,18 +107,24 @@ class TweetsViewController: UIViewController, UITableViewDelegate, UITableViewDa
     }
 
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-        
-        let cell = sender as! UITableViewCell
-        let indexPath = tableView.indexPathForCell(cell)
-        let tweet = tweets![indexPath!.row]
-        let detailViewController = segue.destinationViewController as! DetailsViewController
-        detailViewController.tweet = tweet
+        if let detailViewController = segue.destinationViewController as? DetailsViewController {
+            let cell = sender as! UITableViewCell
+            let indexPath = tableView.indexPathForCell(cell)
+            let tweet = tweets![indexPath!.row]
+            detailViewController.tweet = tweet
+        }
+        if let writingViewController = segue.destinationViewController as? WritingViewController {
+            let button = sender as! UIBarButtonItem
+            writingViewController.tweets = tweets
+        }
         
         
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
     }
+    
 
+        
     /*
     // MARK: - Navigation
 
